@@ -1,0 +1,19 @@
+# Python virtual environment
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Environment variables (SECRETS)
+.env
+
+# IDE settings
+.vscode/
+.idea/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Data (Optional: Keep raw data local if it's huge, but for this task, we usually commit it)
+# data/

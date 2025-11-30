@@ -1,0 +1,27 @@
+# Data Collection
+google-play-scraper
+python-dotenv
+
+# Data Manipulation
+pandas
+numpy
+
+# Database
+psycopg2-binary
+sqlalchemy
+
+# NLP & Machine Learning
+transformers
+torch
+scikit-learn
+tqdm
+spacy
+
+# Visualization
+matplotlib
+seaborn
+wordcloud
+
+# Testing & Linting (Required for the Pipeline)
+pytest
+flake8
