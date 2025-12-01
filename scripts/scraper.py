@@ -65,6 +65,6 @@ if all_reviews:
     df.to_csv(output_path, index=False)
     
     print(f"\nScraping Complete. Data saved to: {output_path}")
-    print(f"Total reviews collected: {len(df)}")
+    print(f"Total reviews collected for banks: {len(df)}")
 else:
-    print("\nNo reviews were collected. Check your internet connection.")
+    print("\nNo reviews were collected. Check your internet connection to check.")
