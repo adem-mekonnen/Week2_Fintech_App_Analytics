@@ -67,4 +67,4 @@ if all_reviews:
     print(f"\nScraping Complete. Data saved to: {output_path}")
     print(f"Total reviews collected: {len(df)}")
 else:
-    print("\nNo reviews were collected. Check your internet connection.")
+    print("\nNo reviews were collected. Check your internet connection to check.")

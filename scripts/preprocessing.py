@@ -49,7 +49,7 @@ def preprocess_data():
     # 5. Data Quality Check
     missing_percentage = final_df.isnull().mean().max() * 100
     
-    print("\nPreprocessing Stats:")
+    print("\nPreprocessing Status:")
     print(f"  - Original Records: {original_count}")
     print(f"  - Final Records:    {len(final_df)}")
     print(f"  - Duplicates/Nulls Removed: {original_count - len(final_df)}")
