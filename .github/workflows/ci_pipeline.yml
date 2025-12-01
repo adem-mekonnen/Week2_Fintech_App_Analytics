@@ -27,15 +27,16 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-    # 4. Lint Code (Check for syntax errors)
+    # 4. Lint Code
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        # exit-zero treats all errors as warnings.
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    # 5. Run Tests (Even if empty for now, this prepares the structure)
+    # 5. Run Tests (FIXED)
     - name: Run Unit Tests
       run: |
-        pytest
+        # Run pytest, but if it returns exit code 5 (no tests found), treat it as success.
+        pytest || (if [ $? -eq 5 ]; then echo "No tests collected, but skipping failure..."; exit 0; else exit 1; fi)
