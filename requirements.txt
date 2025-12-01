@@ -12,16 +12,22 @@ sqlalchemy
 
 # NLP & Machine Learning
 transformers
-torch
+
+# Use CPU-only PyTorch to avoid heavy CUDA downloads
+torch==2.8.0+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 scikit-learn
 tqdm
-spacy
+
+# spaCy without GPU / CUDA
+spacy[cuda-none]
 
 # Visualization
 matplotlib
 seaborn
 wordcloud
 
-# Testing & Linting (Required for the Pipeline)
+# Testing & Linting
 pytest
 flake8
