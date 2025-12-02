@@ -1,3 +1,6 @@
+# Add PyTorch CPU extra index at the top
+--extra-index-url https://download.pytorch.org/whl/cpu
+
 # Data Collection
 google-play-scraper
 python-dotenv
@@ -12,11 +15,7 @@ sqlalchemy
 
 # NLP & Machine Learning
 transformers
-
-# Use CPU-only PyTorch to avoid heavy CUDA downloads
-torch==2.8.0+cpu
---extra-index-url https://download.pytorch.org/whl/cpu
-
+torch==2.9.1+cpu
 scikit-learn
 tqdm
 
