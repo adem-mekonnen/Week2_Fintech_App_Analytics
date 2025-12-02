@@ -1,16 +1,13 @@
-### **Action:**
-1.  Open the file named `README.md` in your root folder (`Fintech_App_Analytics/`).
-2.  Delete any existing text.
-3.  **Copy and paste** the markdown code below.
+Here is the completely updated **`README.md`** file.
 
----
-
+It now includes **Task 3 (Database Schema)** and **Task 4 (Visualization)**, reflecting the full scope of your project.
 ```markdown
 # Customer Experience Analytics for Ethiopian Fintech Apps
 
-![Python](https://img.shields.io/badge/Python-3.9%2B-blue)
-![Status](https://img.shields.io/badge/Status-In%20Progress-yellow)
-![Library](https://img.shields.io/badge/Library-HuggingFace%20Transformers-orange)
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-blue)
+![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED)
+![Status](https://img.shields.io/badge/Status-Completed-green)
 
 ## 📌 Project Overview
 This project involves scraping, analyzing, and visualizing Google Play Store reviews for three major Ethiopian banking applications:
@@ -32,14 +29,18 @@ Fintech_App_Analytics/
 ├── data/
 │   ├── raw/                # Original scraped data (reviews_raw.csv)
 │   └── processed/          # Cleaned & Analyzed data (reviews_analyzed.csv)
-├── notebooks/              # Jupyter Notebooks for visualization
-├── reports/                # PDF deliverables
+├── notebooks/              # Jupyter Notebooks for interactive analysis
+├── reports/
+│   └── figures/            # Generated charts (PNGs)
 ├── scripts/                # Python modules
 │   ├── scraper.py          # Task 1: Scrapes Google Play Store
 │   ├── preprocessing.py    # Task 1: Cleans and normalizes data
 │   ├── sentiment_analysis.py # Task 2: BERT Sentiment & Theme extraction
-│   └── db_loader.py        # Task 3: Loads data to PostgreSQL
-└── tests/                  # Unit tests
+│   ├── db_loader.py        # Task 3: Loads data to PostgreSQL
+│   └── visualize.py        # Task 4: Generates insights & plots
+├── tests/                  # Unit tests
+├── docker-compose.yml      # Database container configuration
+└── requirements.txt        # Project dependencies
 ```
 
 ---
@@ -52,22 +53,18 @@ Fintech_App_Analytics/
     cd Fintech_App_Analytics
     ```
 
-2.  **Create Virtual Environment:**
+2.  **Environment Setup:**
     ```bash
+    # Create Virtual Environment
     python -m venv venv
-    # Windows
-    .\venv\Scripts\activate
-    # Mac/Linux
-    source venv/bin/activate
-    ```
+    source venv/bin/activate  # Windows: .\venv\Scripts\activate
 
-3.  **Install Dependencies:**
-    ```bash
+    # Install Dependencies
     pip install -r requirements.txt
     ```
 
-4.  **Environment Variables:**
-    Create a `.env` file in the root directory (see `.env.example` if available) to store database credentials.
+3.  **Database Config:**
+    Ensure you have Docker installed. Create a `.env` file with your credentials (see `.env.example`).
 
 ---
 
@@ -77,25 +74,17 @@ Fintech_App_Analytics/
 
 ### Methodology
 *   **Source:** Google Play Store via `google-play-scraper`.
-*   **Apps Targetted:**
-    *   CBE: `com.combanketh.mobilebanking`
-    *   BOA: `com.bankofabyssinia.mobileapp`
-    *   Dashen: `com.dashenbank.amele`
+*   **Target Apps:** CBE, BOA, Dashen.
 *   **Cleaning Steps:**
     1.  Removed exact duplicates based on User, Text, and Date.
     2.  Normalized dates to `YYYY-MM-DD`.
     3.  Renamed columns to standard schema (`review`, `rating`, `date`, `bank`, `source`).
 
-### Execution
-To run the scraper and cleaner:
+**Execution:**
 ```bash
-# 1. Scrape Data
 python scripts/scraper.py
-
-# 2. Clean Data
 python scripts/preprocessing.py
 ```
-*Output:* `data/processed/reviews_cleaned.csv`
 
 ---
 
@@ -109,19 +98,62 @@ python scripts/preprocessing.py
     *   **Logic:** Classifies reviews as **POSITIVE** or **NEGATIVE** with a confidence score.
 2.  **Thematic Analysis:**
     *   **Technique:** Keyword-based Rule Matching.
-    *   **Themes Defined:**
-        *   `Account Access`: (login, otp, sms, password)
-        *   `Transaction Performance`: (slow, lag, transfer, network)
-        *   `App Stability`: (crash, close, error, bug)
-        *   `UI/UX`: (design, interface, look, easy)
-        *   `Customer Support`: (support, call, branch)
+    *   **Themes Defined:** `Account Access`, `Transaction Performance`, `App Stability`, `UI/UX`, `Features`.
 
-### Execution
-To run the NLP pipeline:
+**Execution:**
 ```bash
 python scripts/sentiment_analysis.py
 ```
-*Output:* `data/processed/reviews_analyzed.csv` (Contains `sentiment_label`, `sentiment_score`, `identified_theme`).
+
+---
+
+## 🗄️ Task 3: PostgreSQL Database Storage
+
+**Objective:** Design and implement a relational database to store processed data.
+
+### Database Schema
+The project uses a normalized schema hosted via Docker.
+
+**Table 1: `banks` (Lookup)**
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `bank_id` | VARCHAR (PK) | App Package Name |
+| `bank_name` | VARCHAR | Readable Name (e.g., Dashen Bank) |
+
+**Table 2: `reviews` (Data)**
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `review_id` | SERIAL (PK) | Unique ID |
+| `bank_id` | VARCHAR (FK) | Links to `banks` |
+| `review_text` | TEXT | Raw Review |
+| `sentiment_label`| VARCHAR | POSITIVE/NEGATIVE |
+| `identified_theme`| VARCHAR | Key Topic |
+
+**Execution:**
+```bash
+# 1. Start Container
+docker-compose up -d
+
+# 2. Run Loader Script
+python scripts/db_loader.py
+```
+
+---
+
+## 📊 Task 4: Visualization & Insights
+
+**Objective:** Derive insights and visualize results for stakeholders.
+
+### Key Visuals Generated
+1.  **Sentiment Distribution:** Stacked bar chart comparing positive vs. negative sentiment per bank.
+2.  **Pain Point Analysis:** Breakdown of negative themes (e.g., identifying "App Stability" as a major issue for BOA).
+3.  **Word Cloud:** Visual representation of common terms in negative reviews.
+
+**Execution:**
+```bash
+python scripts/visualize.py
+```
+*Outputs saved to: `reports/figures/`*
 
 ---
 
@@ -133,6 +165,6 @@ pytest
 
 ## 📝 Author
 **Adem M**  
-1pacademy AI
+10 Academy AI  
 Date: Dec 2025
 ```
