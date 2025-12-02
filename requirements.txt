@@ -1,33 +1,16 @@
-# 1. Force CPU versions for PyTorch
 --extra-index-url https://download.pytorch.org/whl/cpu
-
-# 2. Build Tools
-setuptools
-wheel
-numpy
-
-# 3. Core Libraries (REMOVED specific version ==2.9.1)
 torch
 transformers
 scikit-learn
 tqdm
-sentence-transformers
-spacy
-
-# 4. Data & DB
 pandas
 google-play-scraper
 python-dotenv
 psycopg2-binary
 sqlalchemy
-
-# 5. Viz & NLP Tools
 matplotlib
 seaborn
 wordcloud
-vaderSentiment
-textblob
-
-# 6. Testing
 pytest
 flake8
+spacy
