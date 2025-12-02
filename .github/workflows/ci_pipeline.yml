@@ -11,25 +11,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+      # Checkout the repo
+      - uses: actions/checkout@v3
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
-        cache: pip
-        cache-dependency-path: 'requirements.txt'
+      # Setup Python with pip cache
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          cache: pip
+          cache-dependency-path: 'requirements.txt'
 
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install --no-build-isolation -r requirements.txt
+      # Pre-install build dependencies first to avoid spacy / torch build errors
+      - name: Install Build Dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel numpy
 
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      # Install all project dependencies
+      - name: Install Project Dependencies
+        run: |
+          pip install --no-build-isolation -r requirements.txt
 
-    - name: Run Unit Tests
-      run: |
-        pytest || (if [ $? -eq 5 ]; then echo "No tests found — skipping."; exit 0; else exit 1; fi)
+      # Optional: Verify spacy language models if needed
+      - name: Download spaCy English model
+        run: |
+          python -m spacy download en_core_web_sm || true
+
+      # Linting with flake8
+      - name: Lint with flake8
+        run: |
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # Run unit tests
+      - name: Run Unit Tests
+        run: |
+          pytest || (if [ $? -eq 5 ]; then echo "No tests found — skipping."; exit 0; else exit 1; fi)

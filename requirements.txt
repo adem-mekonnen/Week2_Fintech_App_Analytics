@@ -1,5 +1,10 @@
-# Add PyTorch CPU extra index at the top
+# Use PyTorch CPU wheels
 --extra-index-url https://download.pytorch.org/whl/cpu
+
+# Build-time essentials
+setuptools
+wheel
+numpy
 
 # Data Collection
 google-play-scraper
@@ -7,25 +12,29 @@ python-dotenv
 
 # Data Manipulation
 pandas
-numpy
 
 # Database
 psycopg2-binary
 sqlalchemy
 
 # NLP & Machine Learning
-transformers
 torch==2.9.1+cpu
+transformers
 scikit-learn
 tqdm
+sentence-transformers
 
-# spaCy without GPU / CUDA
+# spaCy for text preprocessing (CPU-only)
 spacy[cuda-none]
 
 # Visualization
 matplotlib
 seaborn
 wordcloud
+
+# Sentiment Analysis alternatives / helpers
+vaderSentiment
+textblob
 
 # Testing & Linting
 pytest
