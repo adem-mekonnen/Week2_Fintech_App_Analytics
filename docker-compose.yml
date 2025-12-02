@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    # NEW NAME: Unique for this project
+    container_name: fintech-bank-db
+    restart: always
+    environment:
+      POSTGRES_USER: baraka_user
+      POSTGRES_PASSWORD: baraka_password
+      POSTGRES_DB: bank_reviews
+    ports:
+      # NEW PORT: 5456 (to avoid conflict with your other db on 5455)
+      - '5456:5432'
+    volumes:
+      # NEW VOLUME: Separate storage for this project
+      - fintech-bank-data:/var/lib/postgresql/data
+
+volumes:
+  fintech-bank-data:

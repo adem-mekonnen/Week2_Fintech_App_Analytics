@@ -1,0 +1,127 @@
+import pandas as pd
+from sqlalchemy import create_engine, text
+import os
+from dotenv import load_dotenv
+
+# 1. Load Environment Variables
+load_dotenv()
+
+# 2. Setup Paths
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# We use the analyzed file because it has Sentiment & Themes
+DATA_PATH = os.path.join(BASE_DIR, "data", "processed", "reviews_analyzed.csv")
+
+# 3. Database Connection Config
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
+
+# Connection String for SQLAlchemy
+DATABASE_URI = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+
+def setup_database():
+    print(f"Connecting to database {DB_NAME} at {DB_HOST}:{DB_PORT}...")
+    
+    try:
+        engine = create_engine(DATABASE_URI)
+        
+        # ---------------------------------------------------------
+        # A. DEFINE SCHEMA (Create Tables)
+        # ---------------------------------------------------------
+        # Table 1: Banks (Lookup Table)
+        create_banks_sql = """
+        CREATE TABLE IF NOT EXISTS banks (
+            bank_id VARCHAR(100) PRIMARY KEY,
+            bank_name VARCHAR(100)
+        );
+        """
+        
+        # Table 2: Reviews (Main Data)
+        create_reviews_sql = """
+        CREATE TABLE IF NOT EXISTS reviews (
+            review_id SERIAL PRIMARY KEY,
+            bank_id VARCHAR(100) REFERENCES banks(bank_id),
+            review_text TEXT,
+            rating INT,
+            review_date DATE,
+            sentiment_label VARCHAR(50),
+            sentiment_score FLOAT,
+            identified_theme VARCHAR(100),
+            source VARCHAR(50)
+        );
+        """
+
+        with engine.connect() as connection:
+            connection.execute(text(create_banks_sql))
+            connection.execute(text(create_reviews_sql))
+            connection.commit()
+            print("✅ Tables 'banks' and 'reviews' created successfully.")
+
+        # ---------------------------------------------------------
+        # B. LOAD DATA
+        # ---------------------------------------------------------
+        if not os.path.exists(DATA_PATH):
+            print(f"❌ Error: File not found at {DATA_PATH}")
+            return
+
+        df = pd.read_csv(DATA_PATH)
+        print(f"📊 Loaded {len(df)} reviews from CSV.")
+
+        # 1. Prepare 'banks' data
+        # Get unique bank IDs from the CSV
+        unique_banks = df[['bank']].drop_duplicates().rename(columns={'bank': 'bank_id'})
+        
+        # Map IDs to Readable Names
+        name_map = {
+            'com.combanketh.mobilebanking': 'Commercial Bank of Ethiopia',
+            'com.boa.boaMobileBanking': 'Bank of Abyssinia',
+            'com.dashen.dashensuperapp': 'Dashen Bank'
+        }
+        unique_banks['bank_name'] = unique_banks['bank_id'].map(name_map).fillna('Unknown')
+
+        # Insert Banks (Use 'append' and handle potential duplicates gracefully in a real scenario, 
+        # but for this task, we assume clean slate or simple append)
+        try:
+            unique_banks.to_sql('banks', engine, if_exists='append', index=False)
+            print("✅ Banks data inserted.")
+        except Exception:
+            print("ℹ️ Banks data might already exist. Skipping.")
+
+        # 2. Prepare 'reviews' data
+        # Rename columns to match SQL Schema
+        reviews_to_db = df.rename(columns={
+            'bank': 'bank_id',
+            'review': 'review_text',
+            'date': 'review_date'
+        })
+        
+        # Select exact columns
+        cols = ['bank_id', 'review_text', 'rating', 'review_date', 
+                'sentiment_label', 'sentiment_score', 'identified_theme', 'source']
+        
+        # Ensure source column exists
+        if 'source' not in reviews_to_db.columns:
+            reviews_to_db['source'] = 'Google Play'
+            
+        reviews_to_db = reviews_to_db[cols]
+
+        # Insert Reviews
+        reviews_to_db.to_sql('reviews', engine, if_exists='replace', index=False)
+        print("✅ Reviews data inserted successfully.")
+
+        # ---------------------------------------------------------
+        # C. VERIFICATION
+        # ---------------------------------------------------------
+        with engine.connect() as connection:
+            result = connection.execute(text("SELECT bank_id, COUNT(*) FROM reviews GROUP BY bank_id;"))
+            print("\n--- 🔍 Database Verification (Count per Bank) ---")
+            for row in result:
+                print(f"   {row[0]}: {row[1]} reviews")
+
+    except Exception as e:
+        print(f"❌ Database Error: {e}")
+
+if __name__ == "__main__":
+    setup_database()
