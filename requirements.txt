@@ -1,41 +1,33 @@
-# Use PyTorch CPU wheels
+# 1. Force CPU versions for PyTorch
 --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Build-time essentials
+# 2. Build Tools
 setuptools
 wheel
 numpy
 
-# Data Collection
-google-play-scraper
-python-dotenv
-
-# Data Manipulation
-pandas
-
-# Database
-psycopg2-binary
-sqlalchemy
-
-# NLP & Machine Learning
-torch==2.9.1+cpu
+# 3. Core Libraries (REMOVED specific version ==2.9.1)
+torch
 transformers
 scikit-learn
 tqdm
 sentence-transformers
+spacy
 
-# spaCy for text preprocessing (CPU-only)
-spacy[cuda-none]
+# 4. Data & DB
+pandas
+google-play-scraper
+python-dotenv
+psycopg2-binary
+sqlalchemy
 
-# Visualization
+# 5. Viz & NLP Tools
 matplotlib
 seaborn
 wordcloud
-
-# Sentiment Analysis alternatives / helpers
 vaderSentiment
 textblob
 
-# Testing & Linting
+# 6. Testing
 pytest
 flake8
