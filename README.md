@@ -1,6 +1,3 @@
-Here is the completely updated **`README.md`** file.
-
-It now includes **Task 3 (Database Schema)** and **Task 4 (Visualization)**, reflecting the full scope of your project.
 ```markdown
 # Customer Experience Analytics for Ethiopian Fintech Apps
 
@@ -16,7 +13,7 @@ This project involves scraping, analyzing, and visualizing Google Play Store rev
 3.  **Dashen Bank**
 
 **Business Objective:**  
-To identify key drivers of customer satisfaction and retention by extracting actionable insights (sentiments and themes) from unstructured user feedback.
+To identify key drivers of customer satisfaction and retention by extracting actionable insights (sentiments and themes) from unstructured user feedback using NLP and Data Engineering pipelines.
 
 ---
 
@@ -27,17 +24,20 @@ Fintech_App_Analytics/
 │
 ├── .github/workflows/      # CI/CD Pipeline configuration
 ├── data/
-│   ├── raw/                # Original scraped data (reviews_raw.csv)
-│   └── processed/          # Cleaned & Analyzed data (reviews_analyzed.csv)
-├── notebooks/              # Jupyter Notebooks for interactive analysis
+│   ├── raw/                # Original scraped data
+│   ├── processed/          # Cleaned & Analyzed CSVs
+│   └── schema.sql          # Database Schema Dump (Task 3 KPI)
 ├── reports/
 │   └── figures/            # Generated charts (PNGs)
 ├── scripts/                # Python modules
+│   ├── config.py           # Configuration, Logging, & Paths
 │   ├── scraper.py          # Task 1: Scrapes Google Play Store
 │   ├── preprocessing.py    # Task 1: Cleans and normalizes data
 │   ├── sentiment_analysis.py # Task 2: BERT Sentiment & Theme extraction
 │   ├── db_loader.py        # Task 3: Loads data to PostgreSQL
-│   └── visualize.py        # Task 4: Generates insights & plots
+│   ├── verify_db.py        # Task 3: Data Integrity Verification
+│   ├── visualize.py        # Task 4: Generates Plots
+│   └── generate_insights.py # Task 4: Automated Text Report
 ├── tests/                  # Unit tests
 ├── docker-compose.yml      # Database container configuration
 └── requirements.txt        # Project dependencies
@@ -64,7 +64,7 @@ Fintech_App_Analytics/
     ```
 
 3.  **Database Config:**
-    Ensure you have Docker installed. Create a `.env` file with your credentials (see `.env.example`).
+    Ensure Docker is running. Create a `.env` file with your credentials (see `.env.example`).
 
 ---
 
@@ -109,10 +109,10 @@ python scripts/sentiment_analysis.py
 
 ## 🗄️ Task 3: PostgreSQL Database Storage
 
-**Objective:** Design and implement a relational database to store processed data.
+**Objective:** Design and implement a relational database to store processed data and verify integrity.
 
 ### Database Schema
-The project uses a normalized schema hosted via Docker.
+The project uses a normalized schema hosted via Docker. The full schema definition is available in `data/schema.sql`.
 
 **Table 1: `banks` (Lookup)**
 | Column | Type | Description |
@@ -129,13 +129,16 @@ The project uses a normalized schema hosted via Docker.
 | `sentiment_label`| VARCHAR | POSITIVE/NEGATIVE |
 | `identified_theme`| VARCHAR | Key Topic |
 
-**Execution:**
+**Execution & Verification:**
 ```bash
 # 1. Start Container
 docker-compose up -d
 
-# 2. Run Loader Script
+# 2. Run Loader Script (Applies schema.sql)
 python scripts/db_loader.py
+
+# 3. Verify Data Integrity (KPI Check)
+python scripts/verify_db.py
 ```
 
 ---
@@ -144,24 +147,29 @@ python scripts/db_loader.py
 
 **Objective:** Derive insights and visualize results for stakeholders.
 
-### Key Visuals Generated
-1.  **Sentiment Distribution:** Stacked bar chart comparing positive vs. negative sentiment per bank.
-2.  **Pain Point Analysis:** Breakdown of negative themes (e.g., identifying "App Stability" as a major issue for BOA).
-3.  **Word Cloud:** Visual representation of common terms in negative reviews.
+### Key Deliverables
+1.  **Visualizations (`scripts/visualize.py`):** Generates Sentiment Distribution, Pain Point Analysis, and Word Clouds.
+2.  **Automated Insights (`scripts/generate_insights.py`):** Programmatically generates evidence-backed recommendations for each bank based on the analysis.
 
 **Execution:**
 ```bash
+# Generate Charts
 python scripts/visualize.py
+
+# Generate Text Report (Recommendations)
+python scripts/generate_insights.py
 ```
-*Outputs saved to: `reports/figures/`*
+*Visual outputs saved to: `reports/figures/`*
 
 ---
 
-## 🧪 Testing
-This project uses GitHub Actions for CI/CD. To run tests locally:
-```bash
-pytest
-```
+## 🧪 Testing & Quality
+*   **CI/CD:** GitHub Actions pipeline executes linting and testing on push.
+*   **Logging:** Centralized configuration via `scripts/config.py`.
+*   **Local Test:**
+    ```bash
+    pytest
+    ```
 
 ## 📝 Author
 **Adem M**  
